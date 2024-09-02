@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Audit Dashboard</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            width: 100%;
+            background-color: #007bff;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        /* Main Content */
+        .main-content {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Form Section */
+        .form-section {
+            width: 100%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-section form {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .form-section input[type="text"] {
+            padding: 15px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .form-section input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+        }
+
+        .form-section button {
+            padding: 15px 30px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+
+        .form-section button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .form-section button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .form-section .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -9px;
+            margin-left: -9px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results {
+            width: 100%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .results h2 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #444;
+            text-align: center;
+        }
+
+        .results p,
+        .results ul {
+            font-size: 1.1em;
+            line-height: 1.6em;
+        }
+
+        .results ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .results ul li {
+            background-color: #f8d7da;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+
+        .results ul li.no-error {
+            background-color: #d4edda;
+        }
+
+        .results ul li.no-error:hover {
+            background-color: #c3e6cb;
+        }
+
+        .results p span {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>SEO Audit Tool</h1>
+    </header>
+
+    <main class="main-content">
+        <section class="form-section">
+            <form id="auditForm">
+                <input type="text" name="url" id="url" placeholder="Enter website URL">
+                <input type="text" name="keyword" id="keyword" placeholder="Enter keyword (optional)">
+                <button type="submit">
+                    Analyze
+                    <div class="spinner" id="spinner"></div>
+                </button>
+            </form>
+        </section>
+
+        <section id="results" class="results">
+            <h2>SEO Analysis Results</h2>
+            
+            <p><strong>Title Tag:</strong> <span id="title"></span></p>
+            <p><strong>Meta Description:</strong> <span id="description"></span></p>
+            
+            <h3>Broken Links:</h3>
+            <ul id="brokenLinks"></ul>
+
+            <h3>Headings:</h3>
+            <ul>
+                <li><strong>H1:</strong> <span id="h1"></span></li>
+                <li><strong>H2:</strong> <span id="h2"></span></li>
+                <li><strong>H3:</strong> <span id="h3"></span></li>
+            </ul>
+
+            <h3>Images Missing Alt Text:</h3>
+            <ul id="missingAlts"></ul>
+
+            <p><strong>Canonical Link:</strong> <span id="canonical"></span></p>
+
+            <p><strong>Robots.txt:</strong> <span id="robots"></span></p>
+
+            <p><strong>Sitemap.xml:</strong> <span id="sitemap"></span></p>
+
+            <p><strong>Mobile-Friendly:</strong> <span id="mobileFriendly"></span></p>
+
+            <p><strong>Content Length:</strong> <span id="contentLength"></span> characters</p>
+
+            <h3>Internal vs External Links:</h3>
+            <ul>
+                <li><strong>Internal Links:</strong> <span id="internalLinks"></span></li>
+                <li><strong>External Links:</strong> <span id="externalLinks"></span></li>
+            </ul>
+
+            <p><strong>Favicon:</strong> <span id="favicon"></span></p>
+
+            <h3>Large Images (over 100KB):</h3>
+            <ul id="largeImages"></ul>
+
+            <p><strong>Inline CSS/JS:</strong> <span id="inlineCssJs"></span></p>
+
+            <p><strong>Text-to-HTML Ratio:</strong> <span id="textHtmlRatio"></span></p>
+
+            <p><strong>Word Count:</strong> <span id="wordCount"></span> words</p>
+
+            <h3>Duplicate Meta Tags:</h3>
+            <ul id="duplicateMetaTags"></ul>
+
+            <h3>Anchor Texts:</h3>
+            <ul id="anchorTexts"></ul>
+
+            <h3>Images Missing Dimensions:</h3>
+            <ul id="imageDimensions"></ul>
+
+            <!-- Keyword Analysis Section -->
+            <h3>Keyword Analysis:</h3>
+            <p><strong>Keyword in Title:</strong> <span id="keywordInTitle"></span></p>
+            <p><strong>Keyword in Meta Description:</strong> <span id="keywordInDescription"></span></p>
+            <p><strong>Keyword in Headings:</strong></p>
+            <ul>
+                <li><strong>H1:</strong> <span id="keywordInH1"></span></li>
+                <li><strong>H2:</strong> <span id="keywordInH2"></span></li>
+                <li><strong>H3:</strong> <span id="keywordInH3"></span></li>
+            </ul>
+            <p><strong>Keyword in Content:</strong> <span id="keywordInContent"></span></p>
+            <p><strong>Keyword Density:</strong> <span id="keywordDensity"></span>%</p>
+        </section>
+    </main>
+    
+    <script>
+        document.getElementById('auditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const button = e.target.querySelector('button');
+            const spinner = document.getElementById('spinner');
+            const url = document.getElementById('url').value;
+            const keyword = document.getElementById('keyword').value;
+
+            // Disable the button and show the spinner
+            button.disabled = true;
+            spinner.style.display = 'block';
+
+            fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `url=${encodeURIComponent(url)}&keyword=${encodeURIComponent(keyword)}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Re-enable the button and hide the spinner
+                button.disabled = false;
+                spinner.style.display = 'none';
+
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    document.getElementById('title').innerText = data.title;
+                    document.getElementById('description').innerText = data.description;
+                    
+                    const brokenLinks = data.broken_links;
+                    const brokenLinksList = document.getElementById('brokenLinks');
+                    brokenLinksList.innerHTML = '';
+                    if (brokenLinks.length > 0) {
+                        brokenLinks.forEach(link => {
+                            const li = document.createElement('li');
+                            li.innerText = link;
+                            brokenLinksList.appendChild(li);
+                        });
+                    } else {
+                        brokenLinksList.innerHTML = '<li class="no-error">No broken links found.</li>';
+                    }
+
+                    // Update Headings Results
+                    document.getElementById('h1').innerText = data.headings.h1;
+                    document.getElementById('h2').innerText = data.headings.h2;
+                    document.getElementById('h3').innerText = data.headings.h3;
+
+                    // Update Image Alt Results
+                    const missingAltsList = document.getElementById('missingAlts');
+                    missingAltsList.innerHTML = '';
+                    if (data.missing_alts.length > 0) {
+                        data.missing_alts.forEach(alt => {
+                            const li = document.createElement('li');
+                            li.innerText = alt;
+                            missingAltsList.appendChild(li);
+                        });
+                    } else {
+                        missingAltsList.innerHTML = '<li class="no-error">All images have alt text.</li>';
+                    }
+
+                    // Update Canonical Link, Robots.txt, Sitemap.xml, Mobile-Friendly, and Content Length
+                    document.getElementById('canonical').innerText = data.canonical_link;
+                    document.getElementById('robots').innerText = data.has_robots_txt ? "Available" : "Missing";
+                    document.getElementById('sitemap').innerText = data.has_sitemap_xml ? "Available" : "Missing";
+                    document.getElementById('mobileFriendly').innerText = data.mobile_friendly;
+                    document.getElementById('contentLength').innerText = data.content_length;
+
+                    // Update Internal vs External Links
+                    document.getElementById('internalLinks').innerText = data.internal_external_links.internal_links;
+                    document.getElementById('externalLinks').innerText = data.internal_external_links.external_links;
+
+                    // Update Favicon
+                    document.getElementById('favicon').innerText = data.favicon_present;
+
+                    // Update Large Images
+                    const largeImagesList = document.getElementById('largeImages');
+                    largeImagesList.innerHTML = '';
+                    if (data.large_images.length > 0) {
+                        data.large_images.forEach(image => {
+                            const li = document.createElement('li');
+                            li.innerText = image;
+                            largeImagesList.appendChild(li);
+                        });
+                    } else {
+                        largeImagesList.innerHTML = '<li class="no-error">No large images found.</li>';
+                    }
+
+                    // Update Inline CSS/JS
+                    document.getElementById('inlineCssJs').innerText = `CSS: ${data.inline_css_js.inline_css ? 'Present' : 'Missing'}, JS: ${data.inline_css_js.inline_js ? 'Present' : 'Missing'}`;
+
+                    // Update Text-to-HTML Ratio
+                    document.getElementById('textHtmlRatio').innerText = data.text_html_ratio.toFixed(2);
+
+                    // Update Word Count
+                    document.getElementById('wordCount').innerText = data.word_count;
+
+                    // Update Duplicate Meta Tags
+                    const duplicateMetaTagsList = document.getElementById('duplicateMetaTags');
+                    duplicateMetaTagsList.innerHTML = '';
+                    const duplicateMetaTags = Object.entries(data.duplicate_meta_tags);
+                    if (duplicateMetaTags.length > 0) {
+                        duplicateMetaTags.forEach(([tag, count]) => {
+                            const li = document.createElement('li');
+                            li.innerText = `${tag}: ${count} duplicates`;
+                            duplicateMetaTagsList.appendChild(li);
+                        });
+                    } else {
+                        duplicateMetaTagsList.innerHTML = '<li class="no-error">No duplicate meta tags found.</li>';
+                    }
+
+                    // Update Anchor Texts
+                    const anchorTextsList = document.getElementById('anchorTexts');
+                    anchorTextsList.innerHTML = '';
+                    if (data.anchor_text_analysis.length > 0) {
+                        data.anchor_text_analysis.forEach(text => {
+                            const li = document.createElement('li');
+                            li.innerText = text;
+                            anchorTextsList.appendChild(li);
+                        });
+                    } else {
+                        anchorTextsList.innerHTML = '<li class="no-error">No anchor texts found.</li>';
+                    }
+
+                    // Update Images Missing Dimensions
+                    const imageDimensionsList = document.getElementById('imageDimensions');
+                    imageDimensionsList.innerHTML = '';
+                    if (data.image_dimensions_check.length > 0) {
+                        data.image_dimensions_check.forEach(image => {
+                            const li = document.createElement('li');
+                            li.innerText = image;
+                            imageDimensionsList.appendChild(li);
+                        });
+                    } else {
+                        imageDimensionsList.innerHTML = '<li class="no-error">All images have dimensions specified.</li>';
+                    }
+
+                    // Update Keyword Analysis
+                    document.getElementById('keywordInTitle').innerText = data.keyword_analysis.title_contains ? "Yes" : "No";
+                    document.getElementById('keywordInDescription').innerText = data.keyword_analysis.description_contains ? "Yes" : "No";
+                    document.getElementById('keywordInH1').innerText = data.keyword_analysis.headings_contain.h1 ? "Yes" : "No";
+                    document.getElementById('keywordInH2').innerText = data.keyword_analysis.headings_contain.h2 ? "Yes" : "No";
+                    document.getElementById('keywordInH3').innerText = data.keyword_analysis.headings_contain.h3 ? "Yes" : "No";
+                    document.getElementById('keywordInContent').innerText = data.keyword_analysis.content_contains ? "Yes" : "No";
+                    document.getElementById('keywordDensity').innerText = data.keyword_analysis.keyword_density.toFixed(2);
+
+                    // Show the results
+                    document.getElementById('results').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                // Re-enable the button and hide the spinner, handle error
+                button.disabled = false;
+                spinner.style.display = 'none';
+                alert('An error occurred: ' + error);
+            });
+        });
+    </script>
+</body>
+</html>
